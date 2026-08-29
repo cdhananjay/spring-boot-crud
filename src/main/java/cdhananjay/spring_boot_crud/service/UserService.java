@@ -13,11 +13,12 @@ public class UserService {
     public UserService(UserRepository userRepository){
         this.userRepository = userRepository;
     }
-    public void createUser(User user){
+    public User createUser(User user){
         // validations
         // ...
         user.setDeleted(false);
         userRepository.save(user);
+        return user;
     }
 
     public User getUser(Long id) {
