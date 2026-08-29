@@ -11,6 +11,15 @@ public class User {
     private String email;
     private int age;
     private String address;
+    private boolean deleted;
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
     public Long getId() {
         return id;

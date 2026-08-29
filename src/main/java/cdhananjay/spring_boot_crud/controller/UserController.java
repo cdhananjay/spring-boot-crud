@@ -47,4 +47,11 @@ public class UserController {
         if (success) return ResponseEntity.status(HttpStatus.OK).body("user deleted");
         else return ResponseEntity.notFound().build();
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> softDeleteUser(@PathVariable Long id) {
+        boolean success = userService.softDeleteUser(id);
+        if (success) return ResponseEntity.status(HttpStatus.OK).body("user soft deleted");
+        else return ResponseEntity.notFound().build();
+    }
 }

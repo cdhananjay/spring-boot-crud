@@ -16,21 +16,23 @@ public class UserService {
     public void createUser(User user){
         // validations
         // ...
+        user.setDeleted(false);
         userRepository.save(user);
     }
 
     public User getUser(Long id) {
-        Optional<User> user = userRepository.findById(id);
+        Optional<User> user = userRepository.findByIdAndDeletedIsFalse(id);
         return user.orElse(null);
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAllAndFindByDeletedIsFalse();
     }
 
     public User updateUser(User user){
-        Optional<User> existingUser = userRepository.findById(user.getId());
+        Optional<User> existingUser = userRepository.findByIdAndDeletedIsFalse(user.getId());
         if (existingUser.isEmpty()) return null;
+        user.setDeleted(false);
         userRepository.save(user);
         return user;
     }
@@ -38,6 +40,14 @@ public class UserService {
     public boolean deleteUser(Long id) {
         if(!userRepository.existsById(id)) return false;
         userRepository.deleteById(id);
+        return true;
+    }
+
+    public boolean softDeleteUser(Long id) {
+        Optional<User> user = userRepository.findByIdAndDeletedIsFalse(id);
+        if (user.isEmpty()) return false;
+        user.get().setDeleted(true);
+        userRepository.save(user.get());
         return true;
     }
 }
