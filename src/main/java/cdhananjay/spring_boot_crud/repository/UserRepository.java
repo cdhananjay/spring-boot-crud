@@ -1,11 +1,6 @@
 package cdhananjay.spring_boot_crud.repository;
 
 import cdhananjay.spring_boot_crud.entity.User;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Component
-public class UserRepository {
-    public void saveUser(User user){
-        // save to db
-    }
-}
+public interface UserRepository extends JpaRepository<User, Long> {}

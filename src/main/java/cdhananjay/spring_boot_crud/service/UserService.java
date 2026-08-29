@@ -13,6 +13,6 @@ public class UserService {
     public void createUser(User user){
         // validations
         // ...
-        userRepository.saveUser(user);
+        userRepository.save(user);
     }
 }
