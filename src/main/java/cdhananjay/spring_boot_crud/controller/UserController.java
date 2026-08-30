@@ -1,7 +1,10 @@
 package cdhananjay.spring_boot_crud.controller;
 
-import cdhananjay.spring_boot_crud.entity.User;
+import cdhananjay.spring_boot_crud.dto.UpdateUserRequestDto;
+import cdhananjay.spring_boot_crud.dto.UserRequestDto;
+import cdhananjay.spring_boot_crud.dto.UserResponseDto;
 import cdhananjay.spring_boot_crud.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,27 +20,27 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        User user = userService.getUser(id);
-        if (user == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
+        UserResponseDto userResponseDto = userService.getUser(id);
+        if (userResponseDto == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
     @PutMapping()
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User updatedUser = userService.updateUser(user);
-        if (updatedUser == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody UpdateUserRequestDto updateUserRequestDto) {
+        UserResponseDto userResponseDto = userService.updateUser(updateUserRequestDto);
+        if (userResponseDto == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
     }
 
     @DeleteMapping("/{id}")
