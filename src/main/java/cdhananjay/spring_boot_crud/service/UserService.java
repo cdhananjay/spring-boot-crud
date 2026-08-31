@@ -4,6 +4,8 @@ import cdhananjay.spring_boot_crud.dto.UpdateUserRequestDto;
 import cdhananjay.spring_boot_crud.dto.UserRequestDto;
 import cdhananjay.spring_boot_crud.dto.UserResponseDto;
 import cdhananjay.spring_boot_crud.entity.User;
+import cdhananjay.spring_boot_crud.exception.DuplicateResourceException;
+import cdhananjay.spring_boot_crud.exception.ResourceNotFoundException;
 import cdhananjay.spring_boot_crud.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +20,19 @@ public class UserService {
     }
     
     public UserResponseDto createUser(UserRequestDto userRequestDto){
+        if (userRepository.existsByEmail(userRequestDto.getEmail()))
+            throw new DuplicateResourceException("User with email "+ userRequestDto.getEmail() +" already exist.");
         User user = mapToEntity(userRequestDto);
         userRepository.save(user);
         return mapToDto(user);
     }
 
     public UserResponseDto getUser(Long id) {
-        Optional<User> user = userRepository.findByIdAndDeletedIsFalse(id);
-        return user.map(this::mapToDto).orElse(null);
+        User user = userRepository
+                .findByIdAndDeletedIsFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " does not exist."));
+
+        return mapToDto(user);
     }
 
     public List<UserResponseDto> getAllUsers() {
@@ -33,25 +40,24 @@ public class UserService {
     }
 
     public UserResponseDto updateUser(UpdateUserRequestDto updateUserRequestDto){
+        if (userRepository.existsByEmail(updateUserRequestDto.getEmail()))
+            throw new DuplicateResourceException("User with email " + updateUserRequestDto.getEmail() + " already exists.");
+        User _existingUser = userRepository.findByIdAndDeletedIsFalse(updateUserRequestDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User with id "+ updateUserRequestDto.getId() + " does not exist."));
         User user = mapToEntity(updateUserRequestDto);
-        Optional<User> existingUser = userRepository.findByIdAndDeletedIsFalse(user.getId());
-        if (existingUser.isEmpty()) return null;
         userRepository.save(user);
         return mapToDto(user);
     }
 
-    public boolean deleteUser(Long id) {
-        if(!userRepository.existsById(id)) return false;
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) throw new ResourceNotFoundException("User with id " + id + " does not exist.");
         userRepository.deleteById(id);
-        return true;
     }
 
-    public boolean softDeleteUser(Long id) {
-        Optional<User> user = userRepository.findByIdAndDeletedIsFalse(id);
-        if (user.isEmpty()) return false;
-        user.get().setDeleted(true);
-        userRepository.save(user.get());
-        return true;
+    public void softDeleteUser(Long id) {
+        User user = userRepository.findByIdAndDeletedIsFalse(id).orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " does not exist."));
+        user.setDeleted(true);
+        userRepository.save(user);
     }
     
     private User mapToEntity(UserRequestDto userRequestDto) {

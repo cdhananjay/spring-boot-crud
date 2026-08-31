@@ -26,34 +26,30 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
-        UserResponseDto userResponseDto = userService.getUser(id);
-        if (userResponseDto == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.getUser(id));
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
     @PutMapping()
     public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody UpdateUserRequestDto updateUserRequestDto) {
-        UserResponseDto userResponseDto = userService.updateUser(updateUserRequestDto);
-        if (userResponseDto == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(updateUserRequestDto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        boolean success = userService.deleteUser(id);
-        if (success) return ResponseEntity.status(HttpStatus.OK).body("user deleted");
-        else return ResponseEntity.notFound().build();
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/soft-delete/{id}")
     public ResponseEntity<String> softDeleteUser(@PathVariable Long id) {
-        boolean success = userService.softDeleteUser(id);
-        if (success) return ResponseEntity.status(HttpStatus.OK).body("user soft deleted");
-        else return ResponseEntity.notFound().build();
+        userService.softDeleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

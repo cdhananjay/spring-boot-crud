@@ -7,9 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
 
 public class UserRequestDto {
-    @NotBlank(message = "Name cannot be empty/blank/null.")
+    @NotBlank(message = "Name cannot be blank.")
     private String name;
 
+    @NotBlank(message = "Email cannot be blank.")
     @Email(message = "Invalid email.")
     private String email;
 
@@ -17,7 +18,7 @@ public class UserRequestDto {
     @Max(value = 100, message = "Age must be less than 100.")
     private int age;
 
-    @Length(min = 2, max = 30, message = "Address length should be min 2 and max 30")
+    @Length(min = 2, max = 30, message = "Address length should be min 2 and max 30 characters long.")
     private String address;
 
 
