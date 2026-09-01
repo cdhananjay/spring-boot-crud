@@ -5,13 +5,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.UUID;
 
 @Profile("dev")
 @Component
-public class LoggingFilter implements Filter {
+public class LoggingFilter extends OncePerRequestFilter {
 
     private final ServletRequest servletRequest;
     private final ServletResponse servletResponse;
@@ -22,31 +23,34 @@ public class LoggingFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain)
-            throws IOException, ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
 
+        return !uri.startsWith("/api/");
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
 
         String uuid = UUID.randomUUID().toString();
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-
-        httpServletResponse.setHeader("X-Request-ID", uuid);
+        response.setHeader("X-Request-ID", uuid);
 
         System.out.println("Incoming Request: "
-                            + httpServletRequest.getMethod() + " "
-                            + httpServletRequest.getRequestURI());
+                + request.getMethod() + " "
+                + request.getRequestURI());
         System.out.println("Request Id: " + uuid);
 
         try {
-            chain.doFilter(request, response);
+            filterChain.doFilter(request, response);
         } finally {
             long duration = System.currentTimeMillis() - startTime;
 
-            System.out.println("Response status: " + httpServletResponse.getStatus());
+            System.out.println("Response status: " + response.getStatus());
             System.out.println("API Response time : " + duration + " ms");
         }
     }
